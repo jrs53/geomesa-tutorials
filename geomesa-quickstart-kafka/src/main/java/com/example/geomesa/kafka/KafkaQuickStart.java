@@ -108,13 +108,14 @@ public class KafkaQuickStart {
             builder.add((int) Math.round(random.nextDouble()*110)); // age
             builder.add(MIN_DATE.plusSeconds((int) Math.round(random.nextDouble() * SECONDS_PER_YEAR)).toDate()); // dtg
             builder.add(WKTUtils$.MODULE$.read("POINT(" + (MIN_X + DX * i) + " " + (MIN_Y + DY * i) + ")")); // geom
-            SimpleFeature feature1 = builder.buildFeature("1");
+            SimpleFeature feature1 = builder.buildFeature(Integer.toString(i));
 
             builder.add(PEOPLE_NAMES[(i+1) % PEOPLE_NAMES.length]); // name
             builder.add((int) Math.round(random.nextDouble()*110)); // age
             builder.add(MIN_DATE.plusSeconds((int) Math.round(random.nextDouble() * SECONDS_PER_YEAR)).toDate()); // dtg
             builder.add(WKTUtils$.MODULE$.read("POINT(" + (MIN_X + DX * i) + " " + (MAX_Y - DY * i) + ")")); // geom
-            SimpleFeature feature2 = builder.buildFeature("2");
+            int id2 = i+numFeatures;
+            SimpleFeature feature2 = builder.buildFeature(Integer.toString(id2));
 
             // write the SimpleFeatures to Kafka
             featureCollection.add(feature1);
@@ -123,8 +124,9 @@ public class KafkaQuickStart {
             featureCollection.clear();
 
             // wait 200 ms in between updating SimpleFeatures to simulate a stream of data
-            Thread.sleep(200);
+            //Thread.sleep(200);
         }
+        Thread.sleep(200);
     }
 
     // prints out attribute values for a SimpleFeature
