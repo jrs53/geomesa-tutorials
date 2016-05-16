@@ -1,4 +1,4 @@
-package org.geomesa;
+package com.example.geomesa.hbase;
 
 import com.beust.jcommander.internal.Lists;
 import com.google.common.base.Joiner;
@@ -45,7 +45,7 @@ import java.util.Random;
  * limitations under the License.
  */
 
-public class QuickStart {
+public class HBaseQuickStart {
     //  static String INSTANCE_ID = "instanceId";
 //  static String ZOOKEEPERS = "zookeepers";
 //  static String USER = "user";
@@ -287,7 +287,7 @@ public class QuickStart {
         assert dataStore != null;
 
         // establish specifics concerning the SimpleFeatureType to store
-        String simpleFeatureTypeName = "QuickStart";
+        String simpleFeatureTypeName = "HBaseQuickStart";
         SimpleFeatureType simpleFeatureType = createSimpleFeatureType(simpleFeatureTypeName);
 
         // write Feature-specific metadata to the destination table in Accumulo
