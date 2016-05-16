@@ -1,5 +1,17 @@
-GeoMesa Quick-Start Tutorial
-============================
+GeoMesa HBase Quick Start
+=========================
+
+Running the tutorial:
+
+```bash
+$ cd geomesa-quickstart-hbase
+$ mvn clean install
+$ java -cp target/geomesa-quickstart-hbase-$VERSION.jar com.example.geomesa.hbase.HBaseQuickStart --bigtable_table_name geomesa
+```
+
+
+Introduction
+------------
 
 This tutorial is the fastest and easiest way to get started with GeoMesa.  It is
 a good stepping-stone on the path to the other tutorials that present
