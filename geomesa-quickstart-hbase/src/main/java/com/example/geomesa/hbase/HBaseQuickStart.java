@@ -15,8 +15,7 @@ import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-//import org.locationtech.geomesa.core.data.AccumuloFeatureStore;
-//import org.locationtech.geomesa.core.index.Constants;
+import org.locationtech.geomesa.hbase.data.HBaseDataStoreFactory;
 import org.locationtech.geomesa.utils.text.WKTUtils$;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
@@ -24,6 +23,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,19 +46,16 @@ import java.util.Random;
  */
 
 public class HBaseQuickStart {
-    //  static String INSTANCE_ID = "instanceId";
-//  static String ZOOKEEPERS = "zookeepers";
-//  static String USER = "user";
-//  static String PASSWORD = "password";
-//  static String AUTHS = "auths";
-//  static String TABLE_NAME = "tableName";
-    static String QUORUM = "hbase.zookeeper.quorum".replace(".", "_");
-    static String PORT   = "hbase.zookeeper.property.clientPort".replace(".", "_");
+    //static String QUORUM = "hbase.zookeeper.quorum".replace(".", "_");
+    //static String PORT   = "hbase.zookeeper.property.clientPort".replace(".", "_");
+    static String TABLE_NAME = "bigtable.table.name".replace(".", "_");
 
     // sub-set of parameters that are used to create the Accumulo DataStore
-    static String[] ACCUMULO_CONNECTION_PARAMS = new String[]{ QUORUM, PORT };
-    //INSTANCE_ID,
-    //ZOOKEEPERS, USER, PASSWORD, AUTHS, TABLE_NAME};
+    static String[] ACCUMULO_CONNECTION_PARAMS = new String[]{
+            //QUORUM,
+            //PORT,
+            TABLE_NAME
+    };
 
     /**
      * Creates a common set of command-line options for the parser.  Each option
@@ -67,8 +64,7 @@ public class HBaseQuickStart {
     static Options getCommonRequiredOptions() {
         Options options = new Options();
 
-
-        Option instanceIdOpt = OptionBuilder.withArgName(QUORUM)
+/*        Option instanceIdOpt = OptionBuilder.withArgName(QUORUM)
                 .hasArg()
                 .isRequired()
                 .withDescription("the zookeeper host")
@@ -81,53 +77,20 @@ public class HBaseQuickStart {
                 .withDescription("the zookeeper port")
                 .create(PORT);
         options.addOption(instanceIdOpt2);
+*/
 
-//    Option instanceIdOpt = OptionBuilder.withArgName(INSTANCE_ID)
-//            .hasArg()
-//            .isRequired()
-//            .withDescription("the ID (name) of the Accumulo instance, e.g:  mycloud")
-//            .create(INSTANCE_ID);
-//    options.addOption(instanceIdOpt);
-//
-//    Option zookeepersOpt = OptionBuilder.withArgName(ZOOKEEPERS)
-//            .hasArg()
-//            .isRequired()
-//            .withDescription("the comma-separated list of Zookeeper nodes that support your Accumulo instance, e.g.:  zoo1:2181,zoo2:2181,zoo3:2181")
-//            .create(ZOOKEEPERS);
-//    options.addOption(zookeepersOpt);
-//
-//    Option userOpt = OptionBuilder.withArgName(USER)
-//            .hasArg()
-//            .isRequired()
-//            .withDescription("the Accumulo user that will own the connection, e.g.:  root")
-//            .create(USER);
-//    options.addOption(userOpt);
-//
-//    Option passwordOpt = OptionBuilder.withArgName(PASSWORD)
-//            .hasArg()
-//            .isRequired()
-//            .withDescription("the password for the Accumulo user that will own the connection, e.g.:  toor")
-//            .create(PASSWORD);
-//    options.addOption(passwordOpt);
-//
-//    Option authsOpt = OptionBuilder.withArgName(AUTHS)
-//            .hasArg()
-//            .withDescription("the (optional) list of comma-separated Accumulo authorizations that should be applied to all data written or read by this Accumulo user; note that this is NOT the list of low-level database permissions such as 'Table.READ', but more a series of text tokens that decorate cell data, e.g.:  Accounting,Purchasing,Testing")
-//            .create(AUTHS);
-//    options.addOption(authsOpt);
-//
-//    Option tableNameOpt = OptionBuilder.withArgName(TABLE_NAME)
-//            .hasArg()
-//            .isRequired()
-//            .withDescription("the name of the Accumulo table to use -- or create, if it does not already exist -- to contain the new data")
-//            .create(TABLE_NAME);
-//    options.addOption(tableNameOpt);
+        Option tableNameOpt = OptionBuilder.withArgName(TABLE_NAME)
+                .hasArg()
+                .isRequired()
+                .withDescription("table name")
+                .create(TABLE_NAME);
+        options.addOption(tableNameOpt);
 
         return options;
     }
 
-    static Map<String, String> getAccumuloDataStoreConf(CommandLine cmd) {
-        Map<String , String> dsConf = new HashMap<String , String>();
+    static Map<String, Serializable> getAccumuloDataStoreConf(CommandLine cmd) {
+        Map<String , Serializable> dsConf = new HashMap<String, Serializable>();
         for (String param : ACCUMULO_CONNECTION_PARAMS) {
             dsConf.put(param.replace("_", "."), cmd.getOptionValue(param));
         }
@@ -269,8 +232,7 @@ public class HBaseQuickStart {
                     feature.getProperty("Who").getValue() + "|" +
                     feature.getProperty("What").getValue() + "|" +
                     feature.getProperty("When").getValue() + "|" +
-                    feature.getProperty("Where").getValue() + "|" +
-                    feature.getProperty("Why").getValue());
+                    feature.getProperty("Where").getValue());
         }
         featureItr.close();
     }
@@ -282,12 +244,17 @@ public class HBaseQuickStart {
         CommandLine cmd = parser.parse( options, args);
 
         // verify that we can see this Accumulo destination in a GeoTools manner
-        Map<String, String> dsConf = getAccumuloDataStoreConf(cmd);
-        DataStore dataStore = DataStoreFinder.getDataStore(dsConf);
+        Map<String, Serializable> dsConf = getAccumuloDataStoreConf(cmd);
+        //DataStore dataStore = DataStoreFinder.getDataStore(dsConf);
+        HBaseDataStoreFactory dsf = new HBaseDataStoreFactory();
+        for(DataAccessFactory.Param p : dsf.getParametersInfo()) {
+            System.out.println(p);
+        }
+        DataStore dataStore = dsf.createDataStore(dsConf);
         assert dataStore != null;
 
         // establish specifics concerning the SimpleFeatureType to store
-        String simpleFeatureTypeName = "HBaseQuickStart";
+        String simpleFeatureTypeName = "QuickStart";
         SimpleFeatureType simpleFeatureType = createSimpleFeatureType(simpleFeatureTypeName);
 
         // write Feature-specific metadata to the destination table in Accumulo

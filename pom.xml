@@ -39,6 +39,7 @@
         <accumulo.version>1.6.4</accumulo.version>
         <zookeeper.version>3.4.5</zookeeper.version>
         <hadoop.version>2.2.0</hadoop.version>
+        <hbase.hadoop.version>2.5.2</hbase.hadoop.version>
         <kafka.version>0.8.2.1</kafka.version>
         <storm.version>0.9.6</storm.version>
         <hbase.version>1.1.5</hbase.version>
