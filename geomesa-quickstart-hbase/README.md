@@ -1,17 +1,75 @@
 GeoMesa HBase Quick Start
 =========================
 
-Running the tutorial:
+Prerequisites
+-------------
+
+* Java SDK 1.7 or 1.8
+* HBase 1.1.5
+* Hadoop 2.5.2
+
+Setting up HBase
+----------------
+
+Download the 1.1.5 binary distribution from http://www.apache.org/dyn/closer.cgi/hbase/ 
+
+Follow the chapter in the HBase Manual for running a standalone instance
+of HBase (https://hbase.apache.org/book.html#quickstart). Note that this
+will use the local filesystem instead of HDFS, and will spin up instances
+of the HBase server and of Zookeeper.
+
+Building the tutorial
+---------------------
+
+Download and build GeoMesa 1.2.2-SNAPSHOT:
+
+```
+$ cd geomesa
+$ mvn clean install -DskipTests
+```
+
+To build the tutorial code:
 
 ```bash
 $ cd geomesa-quickstart-hbase
 $ mvn clean install
+```
+
+GeoMesa's ``HBaseDataStore`` searches for a file called ``hbase-site.xml``,
+which among other things configures the Zookeeper host(s) and port. If this file
+is not present, the ``hbase-default.xml`` provided by hbase-common sets the
+default zookeeper quorum to "localhost" and port to 2181, which is what is used
+by the standalone HBase described in "Setting up HBase" above. 
+
+If you have an existing HBase installation, you should copy your ``hbase-site.xml``
+file into ``geomesa-quickstart-hbase/src/main/resources`` and recompile with
+``mvn clean install`` above in order to get the quick start code to target the
+existing HBase.
+
+Note: you may also need to change the HBase and Hadoop versions to match your
+installation.
+
+
+Running the tutorial
+--------------------
+
+```bash
 $ java -cp target/geomesa-quickstart-hbase-$VERSION.jar com.example.geomesa.hbase.HBaseQuickStart --bigtable_table_name geomesa
 ```
 
+The GeoMesa ``HBaseDataStore`` searches for a file called ``
 
-Introduction
-------------
+Before running the tutorial script multiple times, use the following to
+delete the data from HBase:
+
+$ /path/to/hbase-1.1.5/bin/hbase shell
+hbase> disable 'QuickStart_z3'
+hbase> drop 'QuickStart_z3'
+hbase> disable 'geomesa'
+hbase> drop 'geomesa'
+
+OLD STUFF
+=========
 
 This tutorial is the fastest and easiest way to get started with GeoMesa.  It is
 a good stepping-stone on the path to the other tutorials that present
@@ -21,10 +79,10 @@ In the spirit of keeping things simple, the code in this tutorial only does a
 few small things:
 
 1.  establishes a new (static) SimpleFeatureType
-2.  prepares the Accumulo table to store this type of data
-3.  creates a few hundred exmple SimpleFeatures
-4.  writes these SimpleFeatures to the Accumulo table
-5.  queries for a given geographic rectangle, time range, and attribute filter,
+2.  prepares the HBase table to store this type of data
+3.  creates 1000 example SimpleFeatures
+4.  writes these SimpleFeatures to the HBase table
+5.  queries for a given geographic rectangle and time range, and attribute filter,
     writing out the entries in the result set
 
 The only dynamic element in the tutorial is the Accumulo destination; that is
