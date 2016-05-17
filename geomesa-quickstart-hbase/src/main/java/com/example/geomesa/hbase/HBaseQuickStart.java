@@ -165,8 +165,6 @@ public class HBaseQuickStart {
             // another string value
             // "Why"; left empty, showing that not all attributes need values
 
-            System.out.println("Building SF with Geom " + simpleFeature.getDefaultGeometry());
-
             // accumulate this new feature in the collection
             featureCollection.add(simpleFeature);
         }
