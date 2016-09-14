@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION=1.2.5.1-SNAPSHOT
+VERSION=1.2.7.0-SNAPSHOT
 
 java -Xmx4g -cp target/geomesa-quickstart-kafka-$VERSION.jar \
     com.example.geomesa.kafka.KafkaLoadTester \
